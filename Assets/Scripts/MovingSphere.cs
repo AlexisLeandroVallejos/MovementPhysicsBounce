@@ -11,6 +11,10 @@ public class MovingSphere : MonoBehaviour
     //campo de aceleracion para la esfera
     [SerializeField, Range(0f, 100f)]
     float maxAcceleration = 10f;
+
+    //campo de altura de salto
+    [SerializeField, Range(0f, 10f)]
+    float jumpHeight = 2f;
     
     //guardo valor de velocidad y velocidad deseada
     Vector3 velocity, desiredVelocity;
@@ -76,6 +80,6 @@ public class MovingSphere : MonoBehaviour
 
     void Jump()
     {
-        velocity.y += 5f;
+        velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
     }
 }
