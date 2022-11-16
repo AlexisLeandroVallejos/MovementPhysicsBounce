@@ -18,6 +18,9 @@ public class MovingSphere : MonoBehaviour
     //controlar el rigidbody
     Rigidbody body;
 
+    //saltara
+    bool desiredJump;
+
     void Awake() 
     {
         body = GetComponent<Rigidbody>();
@@ -44,6 +47,9 @@ public class MovingSphere : MonoBehaviour
 
         //velocidad deseada es un campo para usar en FixedUpdate
         desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+
+        //saltar al presionar Espacio, "OR asignado" para que siempre sea true hasta modificarlo
+        desiredJump |= Input.GetButtonDown("Jump");
     }
 
     void FixedUpdate()
@@ -58,7 +64,18 @@ public class MovingSphere : MonoBehaviour
         velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
         velocity.z = Mathf.MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
 
+        //si es salto deseado
+        if(desiredJump){
+            desiredJump = false;
+            Jump();
+        }
+
         //aplicar al rigidbody la velocidad arbitraria
         body.velocity = velocity;
+    }
+
+    void Jump()
+    {
+        velocity.y += 5f;
     }
 }
