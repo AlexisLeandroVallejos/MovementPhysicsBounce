@@ -11,14 +11,6 @@ public class MovingSphere : MonoBehaviour
     //campo de aceleracion para la esfera
     [SerializeField, Range(0f, 100f)]
     float maxAcceleration = 10f;
-
-    //limitar movimiento de la esfera al plano
-    [SerializeField]
-    Rect allowedArea = new Rect(-5f, -5f, 10f, 10f);
-
-    //agregar campo de rebote
-    [SerializeField, Range(0f, 1f)]
-    float bounciness = 0.5f;
     
     //guardo valor de velocidad
     Vector3 velocity;
@@ -57,25 +49,6 @@ public class MovingSphere : MonoBehaviour
         
         //posicionamiento local de la esfera previamente iniciada
         Vector3 newPosition = transform.localPosition + displacement;
-
-        //ajustar el area de movimiento y la velocidad directamente en cada eje
-        //reversar la velocidad hara que rebote * indice de rebote
-        if(newPosition.x < allowedArea.xMin){
-            newPosition.x = allowedArea.xMin;
-            velocity.x = -velocity.x * bounciness;
-        }
-        else if(newPosition.x > allowedArea.xMax){
-            newPosition.x = allowedArea.xMax;
-            velocity.x = -velocity.x * bounciness;
-        }
-        if(newPosition.z < allowedArea.yMin){
-            newPosition.z = allowedArea.yMin;
-            velocity.z = -velocity.z * bounciness;
-        }
-        else if(newPosition.z > allowedArea.yMax){
-            newPosition.z = allowedArea.yMax;
-            velocity.z = -velocity.z * bounciness;
-        }
 
         transform.localPosition = newPosition;
     }
