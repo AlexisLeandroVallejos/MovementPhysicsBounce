@@ -12,13 +12,14 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 100f)]
     float maxAcceleration = 10f;
     
-    //guardo valor de velocidad
-    Vector3 velocity;
+    //guardo valor de velocidad y velocidad deseada
+    Vector3 velocity, desiredVelocity;
 
     //controlar el rigidbody
     Rigidbody body;
 
-    void Awake() {
+    void Awake() 
+    {
         body = GetComponent<Rigidbody>();
     }
 
@@ -41,9 +42,12 @@ public class MovingSphere : MonoBehaviour
         //restringir playerInput para un mejor control dentro del circulo
         playerInput = Vector2.ClampMagnitude(playerInput, 1f);
 
-        //modificar a velocidadDeseada aplicando velocidad+aceleracion
-        Vector3 desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+        //velocidad deseada es un campo para usar en FixedUpdate
+        desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+    }
 
+    void FixedUpdate()
+    {
         //conseguir velocidad del rigidbody antes de manipularla
         velocity = body.velocity;
 
