@@ -15,6 +15,13 @@ public class MovingSphere : MonoBehaviour
     //guardo valor de velocidad
     Vector3 velocity;
 
+    //controlar el rigidbody
+    Rigidbody body;
+
+    void Awake() {
+        body = GetComponent<Rigidbody>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +44,9 @@ public class MovingSphere : MonoBehaviour
         //modificar a velocidadDeseada aplicando velocidad+aceleracion
         Vector3 desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
 
+        //conseguir velocidad del rigidbody antes de manipularla
+        velocity = body.velocity;
+
         //cambio de velocidad sera maxAceleracion * tiempo
         float maxSpeedChange = maxAcceleration * Time.deltaTime;
 
@@ -44,12 +54,7 @@ public class MovingSphere : MonoBehaviour
         velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
         velocity.z = Mathf.MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
 
-        //usar movimiento relativo para evitar un movimiento de teleporte
-        Vector3 displacement = velocity * Time.deltaTime;
-        
-        //posicionamiento local de la esfera previamente iniciada
-        Vector3 newPosition = transform.localPosition + displacement;
-
-        transform.localPosition = newPosition;
+        //aplicar al rigidbody la velocidad arbitraria
+        body.velocity = velocity;
     }
 }
