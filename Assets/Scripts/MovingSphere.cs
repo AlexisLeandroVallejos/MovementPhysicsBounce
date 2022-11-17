@@ -80,6 +80,7 @@ public class MovingSphere : MonoBehaviour
 
     void Jump()
     {
+        //calculo debido a gravedad
         velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
     }
 }
