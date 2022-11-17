@@ -25,6 +25,9 @@ public class MovingSphere : MonoBehaviour
     //saltara
     bool desiredJump;
 
+    //en contacto con el suelo para evitar salto infinito
+    bool onGround;
+
     void Awake() 
     {
         body = GetComponent<Rigidbody>();
@@ -80,7 +83,22 @@ public class MovingSphere : MonoBehaviour
 
     void Jump()
     {
-        //calculo debido a gravedad
-        velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+        //saltar solo en contacto
+        if(onGround){
+            //calculo debido a gravedad
+            velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+        }
+        
+    }
+
+    //saltar solo en contacto con algo (no especifica piso)
+    void OnCollisionEnter()
+    {
+        onGround = true;
+    }
+
+    void OnCollisionExit()
+    {
+        onGround = false;
     }
 }
