@@ -59,6 +59,7 @@ public class MovingSphere : MonoBehaviour
         desiredJump |= Input.GetButtonDown("Jump");
     }
 
+    //PhysX ejecuta esto primero, despues las colisiones
     void FixedUpdate()
     {
         //conseguir velocidad del rigidbody antes de manipularla
@@ -79,6 +80,9 @@ public class MovingSphere : MonoBehaviour
 
         //aplicar al rigidbody la velocidad arbitraria
         body.velocity = velocity;
+
+        //setear a false por el momento y dejar que las colisiones se encarguen del bool
+        onGround = false;
     }
 
     void Jump()
@@ -97,8 +101,9 @@ public class MovingSphere : MonoBehaviour
         onGround = true;
     }
 
-    void OnCollisionExit()
+    //saltar mientras exista contacto con algo, combinacion pared+piso
+    void OnCollisionStay()
     {
-        onGround = false;
+        onGround = true;
     }
 }
