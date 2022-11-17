@@ -95,15 +95,28 @@ public class MovingSphere : MonoBehaviour
         
     }
 
-    //saltar solo en contacto con algo (no especifica piso)
-    void OnCollisionEnter()
+    //saltar solo en contacto con piso
+    void OnCollisionEnter(Collision collision)
     {
-        onGround = true;
+        //evaluar colision pared/piso
+        EvaluateCollision(collision);
     }
 
-    //saltar mientras exista contacto con algo, combinacion pared+piso
-    void OnCollisionStay()
+    //saltar mientras exista contacto con piso
+    void OnCollisionStay(Collision collision)
     {
-        onGround = true;
+        //evaluar colision pared/piso
+        EvaluateCollision(collision);
+    }
+
+    //verificar la colision de la esfera
+    void EvaluateCollision(Collision collision)
+    {
+        //usar la normal para obtener el contacto con algo
+        for (int i = 0; i < collision.contactCount; i++){
+            Vector3 normal = collision.GetContact(i).normal;
+            //booleano mientras el normal sea 0.9 o superior para el salto
+            onGround |= normal.y >=0.9f;
+        }
     }
 }
