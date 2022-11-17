@@ -28,6 +28,13 @@ public class MovingSphere : MonoBehaviour
     //en contacto con el suelo para evitar salto infinito
     bool onGround;
 
+    //saltos aereos
+    [SerializeField, Range(0,5)]
+    int maxAirJumps = 0;
+
+    //conteo de saltos
+    int jumpPhase;
+
     void Awake() 
     {
         body = GetComponent<Rigidbody>();
@@ -62,8 +69,7 @@ public class MovingSphere : MonoBehaviour
     //PhysX ejecuta esto primero, despues las colisiones
     void FixedUpdate()
     {
-        //conseguir velocidad del rigidbody antes de manipularla
-        velocity = body.velocity;
+        UpdateState();
 
         //cambio de velocidad sera maxAceleracion * tiempo
         float maxSpeedChange = maxAcceleration * Time.deltaTime;
@@ -85,10 +91,23 @@ public class MovingSphere : MonoBehaviour
         onGround = false;
     }
 
+    void UpdateState()
+    {
+        //conseguir velocidad del rigidbody antes de manipularla
+        velocity = body.velocity;
+
+        //reiniciar conteo de saltos
+        if(onGround){
+            jumpPhase = 0;
+        }
+    }
+
     void Jump()
     {
         //saltar solo en contacto
-        if(onGround){
+        if(onGround || jumpPhase < maxAirJumps){
+            //sumar saltos
+            jumpPhase += 1;
             //calculo debido a gravedad
             velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
         }
