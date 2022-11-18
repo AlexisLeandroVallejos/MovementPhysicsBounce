@@ -112,7 +112,8 @@ public class MovingSphere : MonoBehaviour
             //recalcular y separar para evitar velocidad excesiva en salto aereo
             float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
             if(velocity.y > 0f){
-                jumpSpeed = jumpSpeed - velocity.y;
+                //evitar que el salto sea negativo
+                jumpSpeed = Mathf.Max(jumpSpeed - velocity.y, 0f);
             }
             velocity.y += jumpSpeed;
         }
