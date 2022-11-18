@@ -8,9 +8,9 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 100f)]
     float maxSpeed = 10f;
 
-    //campo de aceleracion para la esfera
+    //campo de aceleracion para la esfera, campo de aceleracion en aire
     [SerializeField, Range(0f, 100f)]
-    float maxAcceleration = 10f;
+    float maxAcceleration = 10f, maxAirAcceleration = 1f;
 
     //campo de altura de salto
     [SerializeField, Range(0f, 10f)]
@@ -71,8 +71,11 @@ public class MovingSphere : MonoBehaviour
     {
         UpdateState();
 
+        //campo de aceleracion dependiendo de estar en el piso o en el aire
+        float acceleration = onGround ? maxAcceleration : maxAirAcceleration;
+
         //cambio de velocidad sera maxAceleracion * tiempo
-        float maxSpeedChange = maxAcceleration * Time.deltaTime;
+        float maxSpeedChange = acceleration * Time.deltaTime;
 
         //MoveTowards para reemplazar condiciones if, dado un valor actual, valor deseado y la diferencia maxima
         velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
