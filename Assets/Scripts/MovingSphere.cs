@@ -104,12 +104,17 @@ public class MovingSphere : MonoBehaviour
 
     void Jump()
     {
-        //saltar solo en contacto
+        //saltar solo en contacto y mientras sea menor a los saltos aeros permitidos
         if(onGround || jumpPhase < maxAirJumps){
             //sumar saltos
             jumpPhase += 1;
-            //calculo debido a gravedad
-            velocity.y += Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+
+            //recalcular y separar para evitar velocidad excesiva en salto aereo
+            float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+            if(velocity.y > 0f){
+                jumpSpeed = jumpSpeed - velocity.y;
+            }
+            velocity.y += jumpSpeed;
         }
         
     }
