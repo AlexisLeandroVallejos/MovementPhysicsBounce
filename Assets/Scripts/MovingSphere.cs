@@ -249,6 +249,16 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
+        //si no hay piso detectado por el raycast, no se podra pegar al piso. 
+        if(!Physics.Raycast(body.position, Vector3.down, out RaycastHit hit)){
+            return false;
+        }
+
+        //Verificar hit si pego piso, sino devolver falso
+        if(hit.normal.y < minGroundDotProduct){
+            return false;
+        }
+
         //por defecto es falso, queremos que la esfera no este pegada al piso
         return false;
     }
