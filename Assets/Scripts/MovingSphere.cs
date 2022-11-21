@@ -101,8 +101,16 @@ public class MovingSphere : MonoBehaviour
         //aplicar al rigidbody la velocidad arbitraria
         body.velocity = velocity;
 
-        //setear a false por el momento y dejar que las colisiones se encarguen del bool
+        //resetear estado de los contactos
+        ClearState();
+    }
+
+    void ClearState()
+    {
         onGround = false;
+        
+        //vectores normales dejarlos en cero
+        contactNormal = Vector3.zero;
     }
 
     void UpdateState()
@@ -113,6 +121,9 @@ public class MovingSphere : MonoBehaviour
         //reiniciar conteo de saltos
         if(onGround){
             jumpPhase = 0;
+            
+            //normalizar salto en piso
+            contactNormal.Normalize();
         }
         //saltos aeros todavia serviran
         else{
@@ -167,7 +178,9 @@ public class MovingSphere : MonoBehaviour
             //calculo que estoy saltando correctamente cuando hago contacto con el piso
             if(normal.y >= minGroundDotProduct){
                 onGround = true;
-                contactNormal = normal;
+                
+                //acumular normales
+                contactNormal += normal;
             }
         }
     }
