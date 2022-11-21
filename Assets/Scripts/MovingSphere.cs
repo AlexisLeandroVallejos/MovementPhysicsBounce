@@ -88,16 +88,9 @@ public class MovingSphere : MonoBehaviour
     void FixedUpdate()
     {
         UpdateState();
-
-        //campo de aceleracion dependiendo de estar en el piso o en el aire
-        float acceleration = onGround ? maxAcceleration : maxAirAcceleration;
-
-        //cambio de velocidad sera maxAceleracion * tiempo
-        float maxSpeedChange = acceleration * Time.deltaTime;
-
-        //MoveTowards para reemplazar condiciones if, dado un valor actual, valor deseado y la diferencia maxima
-        velocity.x = Mathf.MoveTowards(velocity.x, desiredVelocity.x, maxSpeedChange);
-        velocity.z = Mathf.MoveTowards(velocity.z, desiredVelocity.z, maxSpeedChange);
+        
+        //ajustar velocidades en pendiente y mantener una correcta relacion con la velocidad en piso
+        AdjustVelocity();
 
         //si es salto deseado
         if(desiredJump){
@@ -177,5 +170,31 @@ public class MovingSphere : MonoBehaviour
                 contactNormal = normal;
             }
         }
+    }
+
+    //alinear velocidad deseada con el piso
+    Vector3 ProjectOnContactPlane(Vector3 vector)
+    {
+        return vector - contactNormal * Vector3.Dot(vector, contactNormal);
+    }
+
+    void AdjustVelocity()
+    {
+        //vectores de velocidad alineados con el piso para mantener una velocidad correcta en pendientes
+        Vector3 xAxis = ProjectOnContactPlane(Vector3.right).normalized;
+        Vector3 zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
+
+        //proyectar velocidad actual y nueva velocidad con respecto al piso
+        float currentX = Vector3.Dot(velocity, xAxis);
+        float currentZ = Vector3.Dot(velocity, zAxis);
+
+        float acceleration = onGround ? maxAcceleration : maxAirAcceleration;
+        float maxSpeedChange = acceleration * Time.deltaTime;
+
+        float newX = Mathf.MoveTowards(currentX, desiredVelocity.x, maxSpeedChange);
+        float newZ = Mathf.MoveTowards(currentZ, desiredVelocity.z, maxSpeedChange);
+        
+        //calcular la diferencia de velocidad entre la vieja y la nueva
+        velocity += xAxis * (newX - currentX) + zAxis * (newZ- currentZ);
     }
 }
