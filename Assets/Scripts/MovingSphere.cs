@@ -25,9 +25,6 @@ public class MovingSphere : MonoBehaviour
     //saltara
     bool desiredJump;
 
-    //en contacto con el suelo para evitar salto infinito
-    bool onGround;
-
     //saltos aereos
     [SerializeField, Range(0,5)]
     int maxAirJumps = 0;
@@ -44,6 +41,12 @@ public class MovingSphere : MonoBehaviour
 
     //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba
     Vector3 contactNormal;
+
+    //contador de contactos con el piso
+    int groundContactCount;
+
+    //si hay mas de un contacto OnGround sera true
+    bool OnGround => groundContactCount > 0;
 
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
@@ -82,6 +85,11 @@ public class MovingSphere : MonoBehaviour
 
         //saltar al presionar Espacio, "OR asignado" para que siempre sea true hasta modificarlo
         desiredJump |= Input.GetButtonDown("Jump");
+
+        //ver la cantidad de contactos, cuanto mas contactos mas claro sera el color
+        GetComponent<Renderer>().material.SetColor(
+            "_Color", Color.white * (groundContactCount * 0.25f)
+        );
     }
 
     //PhysX ejecuta esto primero, despues las colisiones
@@ -107,7 +115,8 @@ public class MovingSphere : MonoBehaviour
 
     void ClearState()
     {
-        onGround = false;
+        //resetear contador de contactos
+        groundContactCount = 0;
         
         //vectores normales dejarlos en cero
         contactNormal = Vector3.zero;
@@ -119,11 +128,14 @@ public class MovingSphere : MonoBehaviour
         velocity = body.velocity;
 
         //reiniciar conteo de saltos
-        if(onGround){
+        if(OnGround){
             jumpPhase = 0;
-            
-            //normalizar salto en piso
-            contactNormal.Normalize();
+
+            //solamente normalizar si hay mas de un contacto
+            if(groundContactCount > 1){
+                //normalizar salto en piso
+                contactNormal.Normalize();
+            }
         }
         //saltos aeros todavia serviran
         else{
@@ -134,7 +146,7 @@ public class MovingSphere : MonoBehaviour
     void Jump()
     {
         //saltar solo en contacto y mientras sea menor a los saltos aeros permitidos
-        if(onGround || jumpPhase < maxAirJumps){
+        if(OnGround || jumpPhase < maxAirJumps){
             //sumar saltos
             jumpPhase += 1;
 
@@ -175,10 +187,13 @@ public class MovingSphere : MonoBehaviour
         //usar la normal para obtener el contacto con algo
         for (int i = 0; i < collision.contactCount; i++){
             Vector3 normal = collision.GetContact(i).normal;
+
             //calculo que estoy saltando correctamente cuando hago contacto con el piso
             if(normal.y >= minGroundDotProduct){
-                onGround = true;
                 
+                //aumentar cantidad de contactos
+                groundContactCount += 1;
+
                 //acumular normales
                 contactNormal += normal;
             }
@@ -201,7 +216,7 @@ public class MovingSphere : MonoBehaviour
         float currentX = Vector3.Dot(velocity, xAxis);
         float currentZ = Vector3.Dot(velocity, zAxis);
 
-        float acceleration = onGround ? maxAcceleration : maxAirAcceleration;
+        float acceleration = OnGround ? maxAcceleration : maxAirAcceleration;
         float maxSpeedChange = acceleration * Time.deltaTime;
 
         float newX = Mathf.MoveTowards(currentX, desiredVelocity.x, maxSpeedChange);
