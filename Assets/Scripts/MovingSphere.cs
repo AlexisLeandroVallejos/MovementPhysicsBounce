@@ -87,8 +87,14 @@ public class MovingSphere : MonoBehaviour
         desiredJump |= Input.GetButtonDown("Jump");
 
         //ver la cantidad de contactos, cuanto mas contactos mas claro sera el color
+        /*
         GetComponent<Renderer>().material.SetColor(
             "_Color", Color.white * (groundContactCount * 0.25f)
+        );
+        */
+        //ver si esta en contacto con el piso
+        GetComponent<Renderer>().material.SetColor(
+            "_Color", OnGround ? Color.black : Color.white
         );
     }
 
