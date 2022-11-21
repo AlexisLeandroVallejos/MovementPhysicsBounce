@@ -42,6 +42,9 @@ public class MovingSphere : MonoBehaviour
     //obtener producto punto para calcular la normal en inclinacion usando coseno
     float minGroundDotProduct;
 
+    //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba
+    Vector3 contactNormal;
+
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
         //Mathf.Cos espera radianes
@@ -158,8 +161,11 @@ public class MovingSphere : MonoBehaviour
         //usar la normal para obtener el contacto con algo
         for (int i = 0; i < collision.contactCount; i++){
             Vector3 normal = collision.GetContact(i).normal;
-            //booleano mientras el normal sea 0.9 o superior para el salto
-            onGround |= normal.y >= minGroundDotProduct;
+            //calculo que estoy saltando correctamente cuando hago contacto con el piso
+            if(normal.y >= minGroundDotProduct){
+                onGround = true;
+                contactNormal = normal;
+            }
         }
     }
 }
