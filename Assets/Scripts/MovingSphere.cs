@@ -48,6 +48,9 @@ public class MovingSphere : MonoBehaviour
     //si hay mas de un contacto OnGround sera true
     bool OnGround => groundContactCount > 0;
 
+    //pasos desde que toco piso
+    int stepsSinceLastGrounded;
+
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
         //Mathf.Cos espera radianes
@@ -130,11 +133,17 @@ public class MovingSphere : MonoBehaviour
 
     void UpdateState()
     {
+        //aumentar pasos desde la ultima vez que toco piso la esfera
+        stepsSinceLastGrounded += 1;
+
         //conseguir velocidad del rigidbody antes de manipularla
         velocity = body.velocity;
 
         //reiniciar conteo de saltos
         if(OnGround){
+            //resetear pasos, porque ya esta en contacto con el piso
+            stepsSinceLastGrounded = 0;
+
             jumpPhase = 0;
 
             //solamente normalizar si hay mas de un contacto
