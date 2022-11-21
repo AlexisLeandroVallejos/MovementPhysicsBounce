@@ -139,8 +139,8 @@ public class MovingSphere : MonoBehaviour
         //conseguir velocidad del rigidbody antes de manipularla
         velocity = body.velocity;
 
-        //reiniciar conteo de saltos
-        if(OnGround){
+        //si esta en el piso o esta pegado a el
+        if(OnGround || SnapToGround()){
             //resetear pasos, porque ya esta en contacto con el piso
             stepsSinceLastGrounded = 0;
 
@@ -239,5 +239,17 @@ public class MovingSphere : MonoBehaviour
         
         //calcular la diferencia de velocidad entre la vieja y la nueva
         velocity += xAxis * (newX - currentX) + zAxis * (newZ- currentZ);
+    }
+
+    //pegar la esfera al piso
+    bool SnapToGround()
+    {
+        //si la esfera esta volando, no se podra pegarse al piso
+        if (stepsSinceLastGrounded > 1){
+            return false;
+        }
+
+        //por defecto es falso, queremos que la esfera no este pegada al piso
+        return false;
     }
 }
