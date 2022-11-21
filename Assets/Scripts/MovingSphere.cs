@@ -39,7 +39,7 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 90f)]
     float maxGroundAngle = 25f;
 
-    //obtener producto punto para calcular la normal en inclinacion usando coseno
+    //obtener producto escalar para calcular la normal en inclinacion usando coseno
     float minGroundDotProduct;
 
     //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba
@@ -121,6 +121,10 @@ public class MovingSphere : MonoBehaviour
         if(onGround){
             jumpPhase = 0;
         }
+        //saltos aeros todavia serviran
+        else{
+            contactNormal = Vector3.up;
+        }
     }
 
     void Jump()
@@ -132,11 +136,17 @@ public class MovingSphere : MonoBehaviour
 
             //recalcular y separar para evitar velocidad excesiva en salto aereo
             float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
-            if(velocity.y > 0f){
-                //evitar que el salto sea negativo cuando este cayendo (impulsar un empuje hacia abajo)
-                jumpSpeed = Mathf.Max(jumpSpeed - velocity.y, 0f);
+
+            //velocidad alineada por su contacto normal y velocidad usando producto escalar
+            float alignedSpeed = Vector3.Dot(velocity, contactNormal);
+
+            //el vector de velocidad ahora dependera del producto escalar: velocidad y contacto normal
+            if(alignedSpeed > 0f){
+                jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
             }
-            velocity.y += jumpSpeed;
+
+            //calculo mas directo sobre el vector
+            velocity += contactNormal * jumpSpeed;
         }
         
     }
