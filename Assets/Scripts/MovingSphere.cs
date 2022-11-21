@@ -35,9 +35,24 @@ public class MovingSphere : MonoBehaviour
     //conteo de saltos
     int jumpPhase;
 
+    //maximo angulo de contacto con el piso
+    [SerializeField, Range(0f, 90f)]
+    float maxGroundAngle = 25f;
+
+    //obtener producto punto para calcular la normal en inclinacion usando coseno
+    float minGroundDotProduct;
+
+    //se mantendra sincronizado mientras este en play mode
+    void OnValidate(){
+        //Mathf.Cos espera radianes
+        minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
+    }
+
     void Awake() 
     {
         body = GetComponent<Rigidbody>();
+        //se agrega para que tambien se sincronice en builds
+        OnValidate();
     }
 
     // Start is called before the first frame update
@@ -144,7 +159,7 @@ public class MovingSphere : MonoBehaviour
         for (int i = 0; i < collision.contactCount; i++){
             Vector3 normal = collision.GetContact(i).normal;
             //booleano mientras el normal sea 0.9 o superior para el salto
-            onGround |= normal.y >=0.9f;
+            onGround |= normal.y >= minGroundDotProduct;
         }
     }
 }
