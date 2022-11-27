@@ -263,6 +263,16 @@ public class MovingSphere : MonoBehaviour
         groundContactCount = 1;
         //usar el hit del raycast para que sea nuestra nueva normal de contacto
         contactNormal = hit.normal;
+        
+        //velocidad-magnitud de la esfera
+        float speed = velocity.magnitude;
+        //producto escalar de la velocidad y la normal del hit raycast
+        float dot = Vector3.Dot(velocity, hit.normal);
+        //ajustar velocidad cuando el producto escalar y la normal de la superficie sean superiores a 0.
+        if(dot > 0f){
+            //recalculo la velocidad como la diferencia de la velocidad y la normal del hit por su producto escalar. Normalizo y multiplico por velocidad-magnitud: reajustar al piso
+            velocity = (velocity - hit.normal * dot).normalized * speed;
+        }
         return true;
     }
 }
