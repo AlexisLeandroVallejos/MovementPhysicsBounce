@@ -259,7 +259,10 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
-        //por defecto es falso, queremos que la esfera no este pegada al piso
-        return false;
+        //pegar al piso cuando todas las anteriores condiciones no se cumplan
+        groundContactCount = 1;
+        //usar el hit del raycast para que sea nuestra nueva normal de contacto
+        contactNormal = hit.normal;
+        return true;
     }
 }
