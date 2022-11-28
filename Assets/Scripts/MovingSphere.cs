@@ -306,6 +306,7 @@ public class MovingSphere : MonoBehaviour
     //devolver minimo producto escalar apropiado entre piso o escalera (minground/minStairs valor)
     float GetMinDot(int layer)
     {
-        return stairsMask != layer ? minGroundDotProduct : minStairsDotProduct;
+        //bit mask:
+        return stairsMask != (1 << layer) ? minGroundDotProduct : minStairsDotProduct;
     }
 }
