@@ -153,7 +153,7 @@ public class MovingSphere : MonoBehaviour
     {
         //aumentar pasos fisicos desde la ultima vez que toco piso la esfera
         stepsSinceLastGrounded += 1;
-
+        
         //aumentar pasos fisicos desde el ultimo salto
         stepsSinceLastJump += 1;
 
@@ -166,8 +166,11 @@ public class MovingSphere : MonoBehaviour
             //resetear pasos, porque ya esta en contacto con el piso
             stepsSinceLastGrounded = 0;
 
-            //fase del salto (contador de saltos aeros)
-            jumpPhase = 0;
+            //solo resetear la fase si hay mas de un paso desde el ultimo salto
+            if(stepsSinceLastJump > 1){
+                //fase del salto (contador de saltos aeros)
+                jumpPhase = 0;
+            }
 
             //solamente normalizar si hay mas de un contacto
             if(groundContactCount > 1){
@@ -197,9 +200,17 @@ public class MovingSphere : MonoBehaviour
 
             //la direccion del salto es la del contacto normal con el escarpado
             jumpDirection = steepNormal;
+
+            //resetear la fase del salto para permitir salto aereo cuando se esta en contacto con terreno escarpado
+            jumpPhase = 0;
         }
-        //si aun hay saltos aeros disponibles
-        else if(jumpPhase < maxAirJumps){
+        //si aun hay saltos aeros disponibles. agregada condicion para evitar salto aereo extra con maxAirJumps y su fase de salto
+        else if(maxAirJumps > 0 && jumpPhase <= maxAirJumps){
+            
+            //debido a los ajustes anteriores, va a haber un posible salto aereo extra. Se ajusta eso aqui para que no suceda
+            if(jumpPhase == 0){
+                jumpPhase = 1;
+            }
 
             //la direccion del salto es la del contacto normal con el piso
             jumpDirection = contactNormal;
