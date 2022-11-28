@@ -15,7 +15,27 @@ public class MovingSphere : MonoBehaviour
     //campo de altura de salto
     [SerializeField, Range(0f, 10f)]
     float jumpHeight = 2f;
-    
+
+    //saltos aereos
+    [SerializeField, Range(0,5)]
+    int maxAirJumps = 0;
+
+    //maximo angulo de contacto con el piso, agregado angulo de escalera
+    [SerializeField, Range(0f, 90f)]
+    float maxGroundAngle = 25f, maxStairsAngle = 50f;
+
+    //velocidad de pegado
+    [SerializeField, Range(0f, 100f)]
+    float maxSnapSpeed = 100f;
+
+    //distancia de sondeo
+    [SerializeField, Min(0f)]
+    float probeDistance = 1f;
+
+    //mascara de capas, en unity va a sondear todo excepto Agent(otras esferas) y Ignore Raycast(mascara de sondeo), agregada capa/mascara escalera
+    [SerializeField]
+    LayerMask probeMask = -1, stairsMask = -1;
+
     //guardo valor de velocidad y velocidad deseada
     Vector3 velocity, desiredVelocity;
 
@@ -25,19 +45,11 @@ public class MovingSphere : MonoBehaviour
     //saltara
     bool desiredJump;
 
-    //saltos aereos
-    [SerializeField, Range(0,5)]
-    int maxAirJumps = 0;
-
     //conteo de saltos
     int jumpPhase;
 
-    //maximo angulo de contacto con el piso
-    [SerializeField, Range(0f, 90f)]
-    float maxGroundAngle = 25f;
-
-    //obtener producto escalar para calcular la normal en inclinacion usando coseno
-    float minGroundDotProduct;
+    //obtener producto escalar para calcular la normal en inclinacion usando coseno, agregado producto escalar para escaleras
+    float minGroundDotProduct, minStairsDotProduct;
 
     //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba
     Vector3 contactNormal;
@@ -51,22 +63,13 @@ public class MovingSphere : MonoBehaviour
     //pasos fisicos desde que toco piso, agregado pasos desde el ultimo salto
     int stepsSinceLastGrounded, stepsSinceLastJump;
 
-    //velocidad de pegado
-    [SerializeField, Range(0f, 100f)]
-    float maxSnapSpeed = 100f;
-
-    //distancia de sondeo
-    [SerializeField, Min(0f)]
-    float probeDistance = 1f;
-
-    //mascara de capas, en unity va a sondear todo excepto Agent(otras esferas) y Ignore Raycast
-    [SerializeField]
-    LayerMask probeMask = -1;
-
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
-        //Mathf.Cos espera radianes
+        //Mathf.Cos espera radianes, en contacto con piso
         minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
+        
+        //calculo que pasa con escaleras
+        minStairsDotProduct = Mathf.Cos(maxStairsAngle * Mathf.Deg2Rad);
     }
 
     void Awake() 
@@ -298,5 +301,11 @@ public class MovingSphere : MonoBehaviour
             velocity = (velocity - hit.normal * dot).normalized * speed;
         }
         return true;
+    }
+
+    //devolver minimo producto escalar apropiado entre piso o escalera (minground/minStairs valor)
+    float GetMinDot(int layer)
+    {
+        return stairsMask != layer ? minGroundDotProduct : minStairsDotProduct;
     }
 }
