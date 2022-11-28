@@ -48,8 +48,8 @@ public class MovingSphere : MonoBehaviour
     //si hay mas de un contacto OnGround sera true
     bool OnGround => groundContactCount > 0;
 
-    //pasos desde que toco piso
-    int stepsSinceLastGrounded;
+    //pasos fisicos desde que toco piso, agregado pasos desde el ultimo salto
+    int stepsSinceLastGrounded, stepsSinceLastJump;
 
     //velocidad de pegado
     [SerializeField, Range(0f, 100f)]
@@ -145,8 +145,11 @@ public class MovingSphere : MonoBehaviour
 
     void UpdateState()
     {
-        //aumentar pasos desde la ultima vez que toco piso la esfera
+        //aumentar pasos fisicos desde la ultima vez que toco piso la esfera
         stepsSinceLastGrounded += 1;
+
+        //aumentar pasos fisicos desde el ultimo salto
+        stepsSinceLastJump += 1;
 
         //conseguir velocidad del rigidbody antes de manipularla
         velocity = body.velocity;
@@ -174,6 +177,9 @@ public class MovingSphere : MonoBehaviour
     {
         //saltar solo en contacto y mientras sea menor a los saltos aeros permitidos
         if(OnGround || jumpPhase < maxAirJumps){
+            //resetear contador de pasos fisicos desde el ultimo salto
+            stepsSinceLastJump = 0;
+
             //sumar saltos
             jumpPhase += 1;
 
@@ -256,8 +262,8 @@ public class MovingSphere : MonoBehaviour
     //pegar la esfera al piso
     bool SnapToGround()
     {
-        //si la esfera esta volando, no se podra pegarse al piso
-        if (stepsSinceLastGrounded > 1){
+        //si la esfera esta volando o hay saltos aeros permitidos, no podra pegarse al piso
+        if (stepsSinceLastGrounded > 1 || stepsSinceLastJump <= 2){
             return false;
         }
 
