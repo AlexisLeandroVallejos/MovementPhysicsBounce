@@ -221,7 +221,7 @@ MonoBehaviour:
   probeDistance: 1
   probeMask:
     serializedVersion: 2
-    m_Bits: 51
+    m_Bits: 1075
 --- !u!54 &1883633107873946395
 Rigidbody:
   m_ObjectHideFlags: 0
