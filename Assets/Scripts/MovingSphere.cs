@@ -162,9 +162,11 @@ public class MovingSphere : MonoBehaviour
 
         //si esta en el piso o esta pegado a el o es un contacto escarpado
         if(OnGround || SnapToGround() || CheckSteepContacts()){
+
             //resetear pasos, porque ya esta en contacto con el piso
             stepsSinceLastGrounded = 0;
 
+            //fase del salto (contador de saltos aeros)
             jumpPhase = 0;
 
             //solamente normalizar si hay mas de un contacto
@@ -181,29 +183,52 @@ public class MovingSphere : MonoBehaviour
 
     void Jump()
     {
-        //saltar solo en contacto y mientras sea menor a los saltos aeros permitidos
-        if(OnGround || jumpPhase < maxAirJumps){
-            //resetear contador de pasos fisicos desde el ultimo salto
-            stepsSinceLastJump = 0;
+        //direccion de salto
+        Vector3 jumpDirection;
 
-            //sumar saltos
-            jumpPhase += 1;
-
-            //recalcular y separar para evitar velocidad excesiva en salto aereo
-            float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
-
-            //velocidad alineada por su contacto normal y velocidad usando producto escalar
-            float alignedSpeed = Vector3.Dot(velocity, contactNormal);
-
-            //el vector de velocidad ahora dependera del producto escalar: velocidad y contacto normal
-            if(alignedSpeed > 0f){
-                jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
-            }
-
-            //calculo mas directo sobre el vector
-            velocity += contactNormal * jumpSpeed;
+        //si esta en el piso
+        if(OnGround){
+            
+            //la direccion del salto es la del contacto normal con el piso
+            jumpDirection = contactNormal;
         }
-        
+        //si esta en escarpado
+        else if(OnSteep){
+
+            //la direccion del salto es la del contacto normal con el escarpado
+            jumpDirection = steepNormal;
+        }
+        //si aun hay saltos aeros disponibles
+        else if(jumpPhase < maxAirJumps){
+
+            //la direccion del salto es la del contacto normal con el piso
+            jumpDirection = contactNormal;
+        }
+        //sino
+        else{
+            //no es posible saltar
+            return;
+        }
+
+        //resetear contador de pasos fisicos desde el ultimo salto
+        stepsSinceLastJump = 0;
+
+        //sumar saltos
+        jumpPhase += 1;
+
+        //recalcular y separar para evitar velocidad excesiva en salto aereo
+        float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+
+        //velocidad alineada por velocidad de la esfera y direccion de salto
+        float alignedSpeed = Vector3.Dot(velocity, jumpDirection);
+
+        //el vector de velocidad ahora dependera del producto escalar: velocidad y contacto normal
+        if(alignedSpeed > 0f){
+            jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f);
+        }
+
+        //velocidad de la esfera es direccion de salto * velocidad de salto
+        velocity += jumpDirection * jumpSpeed;
     }
 
     //saltar solo en contacto con piso
