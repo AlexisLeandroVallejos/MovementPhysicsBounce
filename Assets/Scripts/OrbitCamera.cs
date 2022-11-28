@@ -13,6 +13,10 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Range(1f, 20f)]
     float distance = 5f;
 
+    //retraso al enfoque centrado, para que la camara tarde en centrarse en el objetivo y se siga moviendo
+    [SerializeField, Range(0f, 1f)]
+    float focusCentering = 0.5f;
+
     //radio de seguimiento de la camara, para que la camara no sea tan exacta/estricta al seguir la esfera
     [SerializeField, Min(0f)]
     float focusRadius = 1f;
@@ -50,12 +54,24 @@ public class OrbitCamera : MonoBehaviour
             //distancia entre el objetivo(esfera) y el enfoque actual
             float distance = Vector3.Distance(targetPoint, focusPoint);
 
+            //potencia para la interpolacion
+            float t = 1f;
+
+            //si la distancia es mayor a 0.01f y el enfoque centrado es mayor a 0f...
+            if(distance > 0.01f && focusCentering > 0f){
+
+                //calcula la potencia bajo la formula (1-c)^t para interpolar y usar el retraso de enfoque centrado
+                t = Mathf.Pow(1f - focusCentering, Time.deltaTime);
+            }
             //si la distancia es mayor al radio de enfoque de la camara...
             if(distance > focusRadius){
 
-                //nuevo punto de enfoque sera el objetivo y el enfoque anterior en el radio/distanciaActual como interpolador linear (creador de nuevos puntos a partir de viejos)
-                focusPoint = Vector3.Lerp(targetPoint, focusPoint, focusRadius/distance);
+                //calcula el minimo dada la potencia y la interpolacion distancia-radio enfoque
+                t = Mathf.Min(t, focusRadius/distance);
             }
+            
+            //nuevo punto de enfoque sera el objetivo y el enfoque anterior con potencia t como interpolador linear (creador de nuevos puntos a partir de viejos)
+            focusPoint = Vector3.Lerp(targetPoint, focusPoint, t);
         }
         else{
             //la posicion del objetivo a seguir es la nueva posicion de mi objetivo
