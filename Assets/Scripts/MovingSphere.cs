@@ -51,14 +51,17 @@ public class MovingSphere : MonoBehaviour
     //obtener producto escalar para calcular la normal en inclinacion usando coseno, agregado producto escalar para escaleras
     float minGroundDotProduct, minStairsDotProduct;
 
-    //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba
-    Vector3 contactNormal;
+    //campo contacto normal para saltar como fisicamente es correcto y no directamente hacia arriba, agregado normal de terreno escarpado/empinado
+    Vector3 contactNormal, steepNormal;
 
     //contador de contactos con el piso
-    int groundContactCount;
+    int groundContactCount, steepContactCount;
 
-    //si hay mas de un contacto OnGround sera true
+    //si hay mas de un contacto con el piso, OnGround sera true
     bool OnGround => groundContactCount > 0;
+
+    //si hay mas de un contacto escarpado, OnSteep sera true
+    bool OnSteep => steepContactCount > 0;
 
     //pasos fisicos desde que toco piso, agregado pasos desde el ultimo salto
     int stepsSinceLastGrounded, stepsSinceLastJump;
@@ -139,11 +142,11 @@ public class MovingSphere : MonoBehaviour
 
     void ClearState()
     {
-        //resetear contador de contactos
-        groundContactCount = 0;
+        //resetear contador de contactos: pisos y escarpados
+        groundContactCount = steepContactCount = 0;
         
-        //vectores normales dejarlos en cero
-        contactNormal = Vector3.zero;
+        //vectores normales dejarlos en cero: pisos y escarpados
+        contactNormal = steepNormal = Vector3.zero;
     }
 
     void UpdateState()
@@ -235,6 +238,11 @@ public class MovingSphere : MonoBehaviour
 
                 //acumular normales
                 contactNormal += normal;
+            }
+            //sino hay contacto con el piso, chequear contacto empinado. Producto escalar de esto deberia ser cero, por las dudas se usa -0.01f
+            else if(normal.y > -0.01f){
+                steepContactCount += 1;
+                steepNormal += normal;
             }
         }
     }
