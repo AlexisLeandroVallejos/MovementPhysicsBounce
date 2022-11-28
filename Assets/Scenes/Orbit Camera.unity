@@ -6510,6 +6510,11 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!4 &470838888 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1883633107873946392, guid: 87d704f32d3eb0345bb3d620094441f1, type: 3}
+  m_PrefabInstance: {fileID: 1293849910}
+  m_PrefabAsset: {fileID: 0}
 --- !u!43 &551718206
 Mesh:
   m_ObjectHideFlags: 0
@@ -8785,6 +8790,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daf2a60ec6d63ea45a987f17ab54d2dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  focus: {fileID: 470838888}
+  distance: 5
 --- !u!1001 &1293849910
 PrefabInstance:
   m_ObjectHideFlags: 0
