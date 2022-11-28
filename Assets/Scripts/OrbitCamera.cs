@@ -60,8 +60,8 @@ public class OrbitCamera : MonoBehaviour
             //si la distancia es mayor a 0.01f y el enfoque centrado es mayor a 0f...
             if(distance > 0.01f && focusCentering > 0f){
 
-                //calcula la potencia bajo la formula (1-c)^t para interpolar y usar el retraso de enfoque centrado
-                t = Mathf.Pow(1f - focusCentering, Time.deltaTime);
+                //calcula la potencia bajo la formula (1-c)^t para interpolar y usar el retraso de enfoque centrado. Usar unscaled para evitar que la camara se congele o ande lento por efectos especiales (slow motion, pausa en juego, etc) 
+                t = Mathf.Pow(1f - focusCentering, Time.unscaledDeltaTime);
             }
             //si la distancia es mayor al radio de enfoque de la camara...
             if(distance > focusRadius){
