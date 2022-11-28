@@ -220,12 +220,15 @@ public class MovingSphere : MonoBehaviour
     //verificar la colision de la esfera
     void EvaluateCollision(Collision collision)
     {
+        //obtener el producto escalar correcto, y evaluar colision con el
+        float minDot = GetMinDot(collision.gameObject.layer);
+
         //usar la normal para obtener el contacto con algo
         for (int i = 0; i < collision.contactCount; i++){
             Vector3 normal = collision.GetContact(i).normal;
 
-            //calculo que estoy saltando correctamente cuando hago contacto con el piso
-            if(normal.y >= minGroundDotProduct){
+            //calcular contacto con el minimo del producto escalar sea piso/escalera
+            if(normal.y >= minDot){
                 
                 //aumentar cantidad de contactos
                 groundContactCount += 1;
@@ -282,8 +285,8 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
-        //Verificar hit si pego piso, sino devolver falso
-        if(hit.normal.y < minGroundDotProduct){
+        //Verificar hit si pego piso/escalera, sino devolver falso
+        if(hit.normal.y < GetMinDot(hit.collider.gameObject.layer)){
             return false;
         }
 
@@ -306,7 +309,7 @@ public class MovingSphere : MonoBehaviour
     //devolver minimo producto escalar apropiado entre piso o escalera (minground/minStairs valor)
     float GetMinDot(int layer)
     {
-        //bit mask:
-        return stairsMask != (1 << layer) ? minGroundDotProduct : minStairsDotProduct;
+        //bit mask(mascara binaria), soportar cualquier tipo de capa:
+        return (stairsMask & (1 << layer)) == 0 ? minGroundDotProduct : minStairsDotProduct;
     }
 }
