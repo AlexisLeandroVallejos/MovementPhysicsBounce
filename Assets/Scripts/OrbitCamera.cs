@@ -13,16 +13,55 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Range(1f, 20f)]
     float distance = 5f;
 
+    //radio de seguimiento de la camara, para que la camara no sea tan exacta/estricta al seguir la esfera
+    [SerializeField, Min(0f)]
+    float focusRadius = 1f;
+
+    //posicion del objetivo a seguir
+    Vector3 focusPoint;
+
+    void Awake()
+    {
+        //despertar viendo a la esfera
+        focusPoint = focus.position;
+    }
+
     //actualizar tardio para seguir con la camera luego de que Update() pase
     void LateUpdate()
     {
-        //lugar/cosa a enfocar
-        Vector3 focusPoint = focus.position;
+        UpdateFocusPoint();
 
         //donde apuntar la camara
         Vector3 lookDirection = transform.forward;
 
         //mover camara: posicion de la esfera - posicion de la camara por su distancia
         transform.localPosition = focusPoint - lookDirection * distance;
+    }
+
+    //actualizar enfoque de la camara
+    void UpdateFocusPoint()
+    {
+        //objetivo es posicion de la esfera
+        Vector3 targetPoint = focus.position;
+
+        //si el radio de enfoque
+        if(focusRadius > 0f){
+
+            //distancia entre el objetivo(esfera) y el enfoque actual
+            float distance = Vector3.Distance(targetPoint, focusPoint);
+
+            //si la distancia es mayor al radio de enfoque de la camara...
+            if(distance > focusRadius){
+
+                //nuevo punto de enfoque sera el objetivo y el enfoque anterior en el radio/distanciaActual como interpolador linear (creador de nuevos puntos a partir de viejos)
+                focusPoint = Vector3.Lerp(targetPoint, focusPoint, focusRadius/distance);
+            }
+        }
+        else{
+            //la posicion del objetivo a seguir es la nueva posicion de mi objetivo
+            focusPoint = targetPoint;
+        }
+
+        
     }
 }
