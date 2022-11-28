@@ -212,12 +212,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 10
-  maxAcceleration: 100
+  maxAcceleration: 10
   maxAirAcceleration: 0
   jumpHeight: 2
   maxAirJumps: 1
   maxGroundAngle: 40
   maxSnapSpeed: 100
+  probeDistance: 1
 --- !u!54 &1883633107873946395
 Rigidbody:
   m_ObjectHideFlags: 0

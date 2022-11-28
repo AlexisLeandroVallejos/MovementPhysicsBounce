@@ -55,6 +55,10 @@ public class MovingSphere : MonoBehaviour
     [SerializeField, Range(0f, 100f)]
     float maxSnapSpeed = 100f;
 
+    //distancia de sondeo
+    [SerializeField, Min(0f)]
+    float probeDistance = 1f;
+
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
         //Mathf.Cos espera radianes
@@ -259,8 +263,8 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
-        //si no hay piso detectado por el raycast, no se podra pegar al piso. 
-        if(!Physics.Raycast(body.position, Vector3.down, out RaycastHit hit)){
+        //si no hay piso detectado por el raycast, no se podra pegar al piso, agregada distancia de sondeo
+        if(!Physics.Raycast(body.position, Vector3.down, out RaycastHit hit, probeDistance)){
             return false;
         }
 
