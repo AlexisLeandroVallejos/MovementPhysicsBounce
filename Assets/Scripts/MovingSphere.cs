@@ -51,6 +51,10 @@ public class MovingSphere : MonoBehaviour
     //pasos desde que toco piso
     int stepsSinceLastGrounded;
 
+    //velocidad de pegado
+    [SerializeField, Range(0f, 100f)]
+    float maxSnapSpeed = 100f;
+
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
         //Mathf.Cos espera radianes
@@ -249,6 +253,12 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
+        //velocidad-magnitud de la esfera, movido por la velocidad de pegado para volver false si la velocidad-magnitud es superior a la maxima de pegado
+        float speed = velocity.magnitude;
+        if(speed > maxSnapSpeed){
+            return false;
+        }
+
         //si no hay piso detectado por el raycast, no se podra pegar al piso. 
         if(!Physics.Raycast(body.position, Vector3.down, out RaycastHit hit)){
             return false;
@@ -264,8 +274,7 @@ public class MovingSphere : MonoBehaviour
         //usar el hit del raycast para que sea nuestra nueva normal de contacto
         contactNormal = hit.normal;
         
-        //velocidad-magnitud de la esfera
-        float speed = velocity.magnitude;
+        
         //producto escalar de la velocidad y la normal del hit raycast
         float dot = Vector3.Dot(velocity, hit.normal);
         //ajustar velocidad cuando el producto escalar y la normal de la superficie sean superiores a 0.
