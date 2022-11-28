@@ -24,6 +24,9 @@ public class OrbitCamera : MonoBehaviour
     //posicion del objetivo a seguir
     Vector3 focusPoint;
 
+    //angulos de orbita, donde X (es vertical, girando hacia abajo) e Y (es horizontal, mirando a Z)
+    Vector2 orbitAngles = new Vector2(45f, 0f);
+
     void Awake()
     {
         //despertar viendo a la esfera
@@ -35,11 +38,17 @@ public class OrbitCamera : MonoBehaviour
     {
         UpdateFocusPoint();
 
-        //donde apuntar la camara
-        Vector3 lookDirection = transform.forward;
+        //rotacion de vista, usando los angulos de orbita de la camara
+        Quaternion lookRotation = Quaternion.Euler(orbitAngles);
 
-        //mover camara: posicion de la esfera - posicion de la camara por su distancia
-        transform.localPosition = focusPoint - lookDirection * distance;
+        //donde apuntar la camara, con los angulos de orbita de la camara
+        Vector3 lookDirection = lookRotation * Vector3.forward;
+
+        //mover posicion de la camara: posicion de la esfera - posicion de la camara por su distancia
+        Vector3 lookPosition = focusPoint - lookDirection * distance;
+
+        //mover camara: posicion y rotacion usando los valores redefinidos anteriormente
+        transform.SetPositionAndRotation(lookPosition, lookRotation);
     }
 
     //actualizar enfoque de la camara
