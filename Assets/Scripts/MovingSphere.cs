@@ -107,16 +107,6 @@ public class MovingSphere : MonoBehaviour
         //saltar al presionar Espacio, "OR asignado" para que siempre sea true hasta modificarlo
         desiredJump |= Input.GetButtonDown("Jump");
 
-        //ver la cantidad de contactos, cuanto mas contactos mas claro sera el color
-        /*
-        GetComponent<Renderer>().material.SetColor(
-            "_Color", Color.white * (groundContactCount * 0.25f)
-        );
-        */
-        //ver si esta en contacto con el piso
-        GetComponent<Renderer>().material.SetColor(
-            "_Color", OnGround ? Color.black : Color.white
-        );
     }
 
     //PhysX ejecuta esto primero, despues las colisiones
@@ -229,6 +219,9 @@ public class MovingSphere : MonoBehaviour
 
         //recalcular y separar para evitar velocidad excesiva en salto aereo
         float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+
+        //sesgo de salto ascendente, para hacer que un salto pueda aumentar su velocidad en Y (impulsarse hacia arriba con otro salto despues de tocar pared). En superficie plana, no se percibe este cambio, solo en encarpada
+        jumpDirection = (jumpDirection + Vector3.up).normalized;
 
         //velocidad alineada por velocidad de la esfera y direccion de salto
         float alignedSpeed = Vector3.Dot(velocity, jumpDirection);
