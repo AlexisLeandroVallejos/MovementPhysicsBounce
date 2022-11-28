@@ -17,6 +17,10 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Range(0f, 1f)]
     float focusCentering = 0.5f;
 
+    //velocidad de rotacion de la orbita de la camara
+    [SerializeField, Range(1f, 360f)]
+    float rotationSpeed = 90f;
+
     //radio de seguimiento de la camara, para que la camara no sea tan exacta/estricta al seguir la esfera
     [SerializeField, Min(0f)]
     float focusRadius = 1f;
@@ -36,7 +40,11 @@ public class OrbitCamera : MonoBehaviour
     //actualizar tardio para seguir con la camera luego de que Update() pase
     void LateUpdate()
     {
+        //actualizar enfoque
         UpdateFocusPoint();
+
+        //rotar camara
+        ManualRotation();
 
         //rotacion de vista, usando los angulos de orbita de la camara
         Quaternion lookRotation = Quaternion.Euler(orbitAngles);
@@ -88,5 +96,25 @@ public class OrbitCamera : MonoBehaviour
         }
 
         
+    }
+
+    //rotacion de la orbita de la camara
+    void ManualRotation()
+    {
+        //controles de la camara vertical y horizontal
+        Vector2 input = new Vector2(
+            Input.GetAxis("Vertical Camera"), 
+            Input.GetAxis("Horizontal Camera")
+        );
+
+        //epsilon
+        const float e = 0.001f;
+
+        //si alguna entrada es menor o mayor a -/+epsilon...
+        if(input.x < -e || input.x > e || input.y < -e || input.y > e){
+            
+            //agregar la entrada a los angulos de orbita de la camara, escalada por la velocidad de rotacion y el tiempo delta independiente del tiempo en juego
+            orbitAngles += rotationSpeed * Time.unscaledDeltaTime * input;
+        }
     }
 }
