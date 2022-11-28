@@ -160,8 +160,8 @@ public class MovingSphere : MonoBehaviour
         //conseguir velocidad del rigidbody antes de manipularla
         velocity = body.velocity;
 
-        //si esta en el piso o esta pegado a el
-        if(OnGround || SnapToGround()){
+        //si esta en el piso o esta pegado a el o es un contacto escarpado
+        if(OnGround || SnapToGround() || CheckSteepContacts()){
             //resetear pasos, porque ya esta en contacto con el piso
             stepsSinceLastGrounded = 0;
 
@@ -319,5 +319,31 @@ public class MovingSphere : MonoBehaviour
     {
         //bit mask(mascara binaria), soportar cualquier tipo de capa:
         return (stairsMask & (1 << layer)) == 0 ? minGroundDotProduct : minStairsDotProduct;
+    }
+
+    //convertir contactos escarpados en un piso virtual para poder moverse incluso cuando se podria hacer fisicamente (saltar pared y rebotar/impulsarse en ellas, etc)
+    bool CheckSteepContacts()
+    {
+        //si hay mas de un contacto escarpado
+        if(steepContactCount > 1){
+            
+            //normalizar el contacto
+            steepNormal.Normalize();
+
+            //si el contacto escarpado es mayor o igual al producto escalar minimo en el piso...
+            if(steepNormal.y >= minGroundDotProduct){
+                
+                //el contacto escarpado es un piso virtual
+                groundContactCount = 1;
+
+                //contacto escarpado es igual a un contacto en el piso
+                contactNormal = steepNormal;
+
+                //es un contacto escarpado en el que puede moverse
+                return true;
+            }
+        }
+        //NO es un contacto escarpado en el que puede moverse
+        return false;
     }
 }
