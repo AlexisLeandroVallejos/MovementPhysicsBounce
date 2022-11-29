@@ -33,8 +33,8 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Min(0f)]
     float alignDelay = 5f;
 
-    //posicion del objetivo a seguir
-    Vector3 focusPoint;
+    //posicion del objetivo a seguir, posicion anterior del objetivo a seguir
+    Vector3 focusPoint, previousFocusPoint;
 
     //angulos de orbita, donde X (es vertical, girando hacia abajo) e Y (es horizontal, mirando a Z)
     Vector2 orbitAngles = new Vector2(45f, 0f);
@@ -96,6 +96,9 @@ public class OrbitCamera : MonoBehaviour
     //actualizar enfoque de la camara
     void UpdateFocusPoint()
     {
+        //anterior posicion del objetivo es mi actual
+        previousFocusPoint = focusPoint;
+
         //objetivo es posicion de la esfera
         Vector3 targetPoint = focus.position;
 
@@ -186,7 +189,31 @@ public class OrbitCamera : MonoBehaviour
             return false;
         }
 
+        //obtener cambio en el movimiento del cuadro
+        Vector2 movement = new Vector2(
+            focusPoint.x - previousFocusPoint.x,
+            focusPoint.z - previousFocusPoint.z
+        );
+
+        //raiz del movimiento del cuadro
+        float movementDeltaSqr = movement.sqrMagnitude;
+
+        //si el valor anterior es menor a...
+        if(movementDeltaSqr < 0.0001f){
+            
+            //no ajustar
+            return false;
+        }
+
         //ajustar
         return true;
+    }
+
+    //encontrar el angulo horizontal que encaja con la direccion del objetivo
+    static float GetAngle(Vector2 direction)
+    {
+        //obtener angulo segun una direccion en Y
+        float angle = Mathf.Acos(direction.y) * Mathf.Rad2Deg;
+        return angle;
     }
 }
