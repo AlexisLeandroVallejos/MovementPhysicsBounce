@@ -36,6 +36,10 @@ public class MovingSphere : MonoBehaviour
     [SerializeField]
     LayerMask probeMask = -1, stairsMask = -1;
 
+    //espacio de entrada del jugador
+    [SerializeField]
+    Transform playerInputSpace = default;
+
     //guardo valor de velocidad y velocidad deseada
     Vector3 velocity, desiredVelocity;
 
@@ -101,8 +105,19 @@ public class MovingSphere : MonoBehaviour
         //restringir playerInput para un mejor control dentro del circulo
         playerInput = Vector2.ClampMagnitude(playerInput, 1f);
 
-        //velocidad deseada es un campo para usar en FixedUpdate
-        desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+        //si hay espacio de entrada del jugador...
+        if(playerInputSpace){
+            
+            //la velocidad deseada sera modificada segun este espacio
+            desiredVelocity = playerInputSpace.TransformDirection(
+                playerInput.x, 0f, playerInput.y
+            ) * maxSpeed;
+        }
+        //sino usarla directamente de los controles de entrada
+        else{
+            //velocidad deseada es un campo para usar en FixedUpdate
+            desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+        }
 
         //saltar al presionar Espacio, "OR asignado" para que siempre sea true hasta modificarlo
         desiredJump |= Input.GetButtonDown("Jump");
