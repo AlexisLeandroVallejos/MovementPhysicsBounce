@@ -21,6 +21,10 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Range(1f, 360f)]
     float rotationSpeed = 90f;
 
+    //limitar angulos de la camara para que no vuelva complicada para la vista
+    [SerializeField, Range(-89f, 89f)]
+    float minVerticalAngle = -30f, maxVerticalAngle = 60f;
+
     //radio de seguimiento de la camara, para que la camara no sea tan exacta/estricta al seguir la esfera
     [SerializeField, Min(0f)]
     float focusRadius = 1f;
@@ -35,6 +39,18 @@ public class OrbitCamera : MonoBehaviour
     {
         //despertar viendo a la esfera
         focusPoint = focus.position;
+
+        //al iniciar mantener los angulos correctos
+        transform.localRotation = Quaternion.Euler(orbitAngles);
+    }
+
+
+    void OnValidate()
+    {
+        //asegurarse que el maximo nunca sea menor que el minimo en el inspector de unity
+        if(maxVerticalAngle < minVerticalAngle){
+            maxVerticalAngle = minVerticalAngle;
+        }
     }
 
     //actualizar tardio para seguir con la camera luego de que Update() pase
@@ -43,11 +59,22 @@ public class OrbitCamera : MonoBehaviour
         //actualizar enfoque
         UpdateFocusPoint();
 
-        //rotar camara
-        ManualRotation();
+        //rotacion de vista
+        Quaternion lookRotation;
 
-        //rotacion de vista, usando los angulos de orbita de la camara
-        Quaternion lookRotation = Quaternion.Euler(orbitAngles);
+        //rotar camara, si hay cambio...
+        if(ManualRotation()){
+
+            //limitar angulos
+            ConstrainAngles();
+
+            //obtener rotacion de vista ajustada
+            lookRotation = Quaternion.Euler(orbitAngles);
+        }
+        else{
+            //sino obtener rotacion de vista sin ajustar porque no hubo cambio
+            lookRotation = transform.localRotation;
+        }
 
         //donde apuntar la camara, con los angulos de orbita de la camara
         Vector3 lookDirection = lookRotation * Vector3.forward;
@@ -98,8 +125,8 @@ public class OrbitCamera : MonoBehaviour
         
     }
 
-    //rotacion de la orbita de la camara
-    void ManualRotation()
+    //rotacion de la orbita de la camara, solo activo cuando cambia
+    bool ManualRotation()
     {
         //controles de la camara vertical y horizontal
         Vector2 input = new Vector2(
@@ -115,6 +142,27 @@ public class OrbitCamera : MonoBehaviour
             
             //agregar la entrada a los angulos de orbita de la camara, escalada por la velocidad de rotacion y el tiempo delta independiente del tiempo en juego
             orbitAngles += rotationSpeed * Time.unscaledDeltaTime * input;
+
+            //cambio el angulo, entonces es true
+            return true;
+        }
+
+        //no hubo cambio
+        return false;
+    }
+
+    //restringir angulos de la camara
+    void ConstrainAngles()
+    {
+        //restringir angulo vertical entre el min y max permitido
+        orbitAngles.x = Mathf.Clamp(orbitAngles.x, minVerticalAngle, maxVerticalAngle);
+        
+        //restringir angulo horizontal, mantiene el angulo entre 0f y 360f
+        if(orbitAngles.y < 0f){
+            orbitAngles.y += 360f;
+        }
+        else if(orbitAngles.y >= 360f){
+            orbitAngles.y -= 360f;
         }
     }
 }
