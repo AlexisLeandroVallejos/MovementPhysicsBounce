@@ -70,6 +70,9 @@ public class MovingSphere : MonoBehaviour
     //pasos fisicos desde que toco piso, agregado pasos desde el ultimo salto
     int stepsSinceLastGrounded, stepsSinceLastJump;
 
+    //eje superior o hacia arriba
+    Vector3 upAxis;
+
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
         //Mathf.Cos espera radianes, en contacto con piso
@@ -133,6 +136,9 @@ public class MovingSphere : MonoBehaviour
     //PhysX ejecuta esto primero, despues las colisiones
     void FixedUpdate()
     {
+        //direccion opuesta de la gravedad
+        upAxis = -Physics.gravity.normalized;
+
         UpdateState();
         
         //ajustar velocidades en pendiente y mantener una correcta relacion con la velocidad en piso
@@ -191,7 +197,8 @@ public class MovingSphere : MonoBehaviour
         }
         //saltos aeros todavia serviran
         else{
-            contactNormal = Vector3.up;
+            //eje hacia arriba
+            contactNormal = upAxis;
         }
     }
 
@@ -238,11 +245,11 @@ public class MovingSphere : MonoBehaviour
         //sumar saltos
         jumpPhase += 1;
 
-        //recalcular y separar para evitar velocidad excesiva en salto aereo
-        float jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
+        //recalcular y separar para evitar velocidad excesiva en salto aereo. Reemplazo ecuaciones en casos de gravedades diferentes
+        float jumpSpeed = Mathf.Sqrt(2f * Physics.gravity.magnitude * jumpHeight);
 
-        //sesgo de salto ascendente, para hacer que un salto pueda aumentar su velocidad en Y (impulsarse hacia arriba con otro salto despues de tocar pared). En superficie plana, no se percibe este cambio, solo en encarpada
-        jumpDirection = (jumpDirection + Vector3.up).normalized;
+        //sesgo de salto ascendente, para hacer que un salto pueda aumentar su velocidad en Y (impulsarse hacia arriba con otro salto despues de tocar pared). En superficie plana, no se percibe este cambio, solo en encarpada. Reemplazo con eje hacia arriba (gravedad diferente)
+        jumpDirection = (jumpDirection + upAxis).normalized;
 
         //velocidad alineada por velocidad de la esfera y direccion de salto
         float alignedSpeed = Vector3.Dot(velocity, jumpDirection);
@@ -337,9 +344,9 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
-        //si no hay piso detectado por el raycast, no se podra pegar al piso, agregada distancia de sondeo, agregada mascara para ignorar ciertas capas
+        //si no hay piso detectado por el raycast, no se podra pegar al piso, agregada distancia de sondeo, agregada mascara para ignorar ciertas capas. Reemplazo con upAxis negado
         if( !Physics.Raycast(
-            body.position, Vector3.down, out RaycastHit hit, probeDistance, probeMask)){
+            body.position, -upAxis, out RaycastHit hit, probeDistance, probeMask)){
             return false;
         }
 
