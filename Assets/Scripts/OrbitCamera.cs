@@ -195,7 +195,7 @@ public class OrbitCamera : MonoBehaviour
             focusPoint.z - previousFocusPoint.z
         );
 
-        //raiz del movimiento del cuadro
+        //cuadrado del movimiento del cuadro
         float movementDeltaSqr = movement.sqrMagnitude;
 
         //si el valor anterior es menor a...
@@ -204,6 +204,12 @@ public class OrbitCamera : MonoBehaviour
             //no ajustar
             return false;
         }
+
+        //angulo del enfoque a seguir (objetivo), se pasa el angulo normalizado
+        float headingAngle = GetAngle(movement / Mathf.Sqrt(movementDeltaSqr));
+
+        //el nuevo angulo sera mi nuevo enfoque
+        orbitAngles.y = headingAngle;
 
         //ajustar
         return true;
@@ -214,6 +220,8 @@ public class OrbitCamera : MonoBehaviour
     {
         //obtener angulo segun una direccion en Y
         float angle = Mathf.Acos(direction.y) * Mathf.Rad2Deg;
-        return angle;
+        
+        //el angulo podria rotar a sentido horario o antihorario, entonces se revisara su X para saber cual sentido es. Si es menor a 0f, restar 360f. Sino retornar el angulo sin modificar
+        return direction.x < 0f ? 360f - angle : angle;
     }
 }
