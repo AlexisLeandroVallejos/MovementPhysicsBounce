@@ -99,10 +99,27 @@ public class OrbitCamera : MonoBehaviour
         //mover posicion de la camara: posicion de la esfera - posicion de la camara por su distancia
         Vector3 lookPosition = focusPoint - lookDirection * distance;
 
+        //offset del rectangulo (caja/box), direccion enfoque * plano cercano camara
+        Vector3 rectOffset = lookDirection * regularCamera.nearClipPlane;
+        
+        //posicion del rectangulo (caja/box), posicion enfoque * offset
+        Vector3 rectPosition = lookPosition + rectOffset;
+        
+        //castear desde (caja/box), posicion camara
+        Vector3 castFrom = focus.position;
+
+        //linea de casteo (caja), posicion rectangulo - castear desde
+        Vector3 castLine = rectPosition - castFrom;
+
+        //distancia de casteo (caja), largo de la linea de casteo
+        float castDistance = castLine.magnitude;
+
+        //direccion de casteo (caja), linea de casteo / largo de la linea de casteo
+        Vector3 castDirection = castLine / castDistance;
 
         //castea una caja para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
         if(Physics.BoxCast(
-            focusPoint, CameraHalfExtends, -lookDirection, out RaycastHit hit,lookRotation, distance - regularCamera.nearClipPlane
+            castFrom, CameraHalfExtends, castDirection, out RaycastHit hit, lookRotation, castDistance
             )){
                 //ajusta la posicion de la camara para realizar una plano cercano sin chocarse con objetos
                 lookPosition = focusPoint - 
