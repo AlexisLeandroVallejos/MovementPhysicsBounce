@@ -102,9 +102,11 @@ public class OrbitCamera : MonoBehaviour
 
         //castea una caja para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
         if(Physics.BoxCast(
-            focusPoint, CameraHalfExtends, -lookDirection, out RaycastHit hit,lookRotation, distance
+            focusPoint, CameraHalfExtends, -lookDirection, out RaycastHit hit,lookRotation, distance - regularCamera.nearClipPlane
             )){
-                lookPosition = focusPoint - lookDirection * hit.distance;
+                //ajusta la posicion de la camara para realizar una plano cercano sin chocarse con objetos
+                lookPosition = focusPoint - 
+                    lookDirection * (hit.distance + regularCamera.nearClipPlane);
             }
 
         //mover camara: posicion y rotacion usando los valores redefinidos anteriormente
