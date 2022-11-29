@@ -9,6 +9,10 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField]
     Transform focus = default;
 
+    //enmascaramiento de obstruccion, ignorar objetos o geometrias especificas cuando se realiza el boxcast
+    [SerializeField]
+    LayerMask obstructionMask = -1;
+
     //distancia al objetivo a seguir
     [SerializeField, Range(1f, 20f)]
     float distance = 5f;
@@ -119,7 +123,7 @@ public class OrbitCamera : MonoBehaviour
 
         //castea una caja para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
         if(Physics.BoxCast(
-            castFrom, CameraHalfExtends, castDirection, out RaycastHit hit, lookRotation, castDistance
+            castFrom, CameraHalfExtends, castDirection, out RaycastHit hit, lookRotation, castDistance, obstructionMask
             )){
                 //ajusta la posicion del rectangulo de la camara para alejar o acercar la vision de la camara al objetivo
                 rectPosition = castFrom + castDirection * hit.distance;
