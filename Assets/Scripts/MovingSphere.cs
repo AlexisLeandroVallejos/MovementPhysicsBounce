@@ -285,10 +285,15 @@ public class MovingSphere : MonoBehaviour
 
         //usar la normal para obtener el contacto con algo
         for (int i = 0; i < collision.contactCount; i++){
+
+            //obtener la normal de la colision
             Vector3 normal = collision.GetContact(i).normal;
 
-            //calcular contacto con el minimo del producto escalar sea piso/escalera
-            if(normal.y >= minDot){
+            //producto escalar del eje hacia arriba y la normal
+            float upDot = Vector3.Dot(upAxis, normal);
+
+            //calcular contacto con el minimo del producto escalar sea piso/escalera. Reemplazo con producto escalar del eje hacia arriba
+            if(upDot >= minDot){
                 
                 //aumentar cantidad de contactos
                 groundContactCount += 1;
@@ -296,8 +301,8 @@ public class MovingSphere : MonoBehaviour
                 //acumular normales
                 contactNormal += normal;
             }
-            //sino hay contacto con el piso, chequear contacto empinado. Producto escalar de esto deberia ser cero, por las dudas se usa -0.01f
-            else if(normal.y > -0.01f){
+            //sino hay contacto con el piso, chequear contacto empinado. Producto escalar de esto deberia ser cero, por las dudas se usa -0.01f. Reemplazo con producto escalar del eje hacia arriba
+            else if(upDot > -0.01f){
                 steepContactCount += 1;
                 steepNormal += normal;
             }
@@ -350,8 +355,11 @@ public class MovingSphere : MonoBehaviour
             return false;
         }
 
+        //producto escalar del eje hacia arriba y la normal
+        float upDot = Vector3.Dot(upAxis, hit.normal);
+
         //Verificar hit si pego piso/escalera, sino devolver falso
-        if(hit.normal.y < GetMinDot(hit.collider.gameObject.layer)){
+        if(upDot < GetMinDot(hit.collider.gameObject.layer)){
             return false;
         }
 
@@ -387,8 +395,11 @@ public class MovingSphere : MonoBehaviour
             //normalizar el contacto
             steepNormal.Normalize();
 
+            //producto escalar del eje superior y la normal escarpada
+            float upDot = Vector3.Dot(upAxis, steepNormal);
+
             //si el contacto escarpado es mayor o igual al producto escalar minimo en el piso...
-            if(steepNormal.y >= minGroundDotProduct){
+            if(upDot >= minGroundDotProduct){
                 
                 //el contacto escarpado es un piso virtual
                 groundContactCount = 1;
