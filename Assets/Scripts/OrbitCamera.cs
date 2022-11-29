@@ -29,11 +29,18 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Min(0f)]
     float focusRadius = 1f;
 
+    //retraso al ajuste automatico de la camara para ajustarse detras del jugador
+    [SerializeField, Min(0f)]
+    float alignDelay = 5f;
+
     //posicion del objetivo a seguir
     Vector3 focusPoint;
 
     //angulos de orbita, donde X (es vertical, girando hacia abajo) e Y (es horizontal, mirando a Z)
     Vector2 orbitAngles = new Vector2(45f, 0f);
+
+    //ultima vez que se roto manualmente
+    float lastManualRotationTime;
 
     void Awake()
     {
@@ -62,8 +69,8 @@ public class OrbitCamera : MonoBehaviour
         //rotacion de vista
         Quaternion lookRotation;
 
-        //rotar camara, si hay cambio...
-        if(ManualRotation()){
+        //rotar camara, si hay cambio manual o automatico...
+        if(ManualRotation() || AutomaticRotation()){
 
             //limitar angulos
             ConstrainAngles();
@@ -143,6 +150,9 @@ public class OrbitCamera : MonoBehaviour
             //agregar la entrada a los angulos de orbita de la camara, escalada por la velocidad de rotacion y el tiempo delta independiente del tiempo en juego
             orbitAngles += rotationSpeed * Time.unscaledDeltaTime * input;
 
+            //tiempo desde la ultima rotacion sin depender del tiempo en juego
+            lastManualRotationTime = Time.unscaledDeltaTime;
+
             //cambio el angulo, entonces es true
             return true;
         }
@@ -164,5 +174,19 @@ public class OrbitCamera : MonoBehaviour
         else if(orbitAngles.y >= 360f){
             orbitAngles.y -= 360f;
         }
+    }
+
+    //retraso al ajuste automatico
+    bool AutomaticRotation()
+    {
+        //si el tiempo pasado desde la ultima rotacion es menor al tiempo de ajuste automatico
+        if(Time.unscaledTime - lastManualRotationTime < alignDelay){
+
+            //no ajustar
+            return false;
+        }
+
+        //ajustar
+        return true;
     }
 }
