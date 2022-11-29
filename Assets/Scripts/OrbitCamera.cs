@@ -93,6 +93,14 @@ public class OrbitCamera : MonoBehaviour
         //mover posicion de la camara: posicion de la esfera - posicion de la camara por su distancia
         Vector3 lookPosition = focusPoint - lookDirection * distance;
 
+
+        //castea un rayo para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
+        if(Physics.Raycast(
+            focusPoint, -lookDirection, out RaycastHit hit, distance
+            )){
+                lookPosition = focusPoint - lookDirection * hit.distance;
+            }
+
         //mover camara: posicion y rotacion usando los valores redefinidos anteriormente
         transform.SetPositionAndRotation(lookPosition, lookRotation);
     }
