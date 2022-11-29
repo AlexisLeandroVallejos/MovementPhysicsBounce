@@ -53,6 +53,12 @@ public class OrbitCamera : MonoBehaviour
     //referencia al componente de camara regular
     Camera regularCamera;
 
+    //ajustar orbita de la camara ante la gravedad
+    Quaternion gravityAlignment = Quaternion.identity;
+
+    //rotacion de la orbita
+    Quaternion orbitRotation;
+
     void Awake()
     {
         //obtener la camara al despertar
@@ -61,8 +67,8 @@ public class OrbitCamera : MonoBehaviour
         //despertar viendo a la esfera
         focusPoint = focus.position;
 
-        //al despertar mantener los angulos correctos
-        transform.localRotation = Quaternion.Euler(orbitAngles);
+        //al despertar, mantener la rotacion de la orbita como la rotacion inicial de la camara
+        transform.localRotation = orbitRotation = Quaternion.Euler(orbitAngles);
     }
 
 
@@ -77,11 +83,13 @@ public class OrbitCamera : MonoBehaviour
     //actualizar tardio para seguir con la camera luego de que Update() pase
     void LateUpdate()
     {
+        //actualizar orbita de la camara ante gravedad
+        gravityAlignment = Quaternion.FromToRotation(
+            gravityAlignment * Vector3.up, -Physics.gravity.normalized
+            ) * gravityAlignment;
+
         //actualizar enfoque
         UpdateFocusPoint();
-
-        //rotacion de vista
-        Quaternion lookRotation;
 
         //rotar camara, si hay cambio manual o automatico...
         if(ManualRotation() || AutomaticRotation()){
@@ -90,12 +98,11 @@ public class OrbitCamera : MonoBehaviour
             ConstrainAngles();
 
             //obtener rotacion de vista ajustada
-            lookRotation = Quaternion.Euler(orbitAngles);
+            orbitRotation = Quaternion.Euler(orbitAngles);
         }
-        else{
-            //sino obtener rotacion de vista sin ajustar porque no hubo cambio
-            lookRotation = transform.localRotation;
-        }
+
+        //rotacion de vista, agregada interaccion con gravedades
+        Quaternion lookRotation = gravityAlignment * orbitRotation;
 
         //donde apuntar la camara, con los angulos de orbita de la camara
         Vector3 lookDirection = lookRotation * Vector3.forward;
@@ -232,10 +239,13 @@ public class OrbitCamera : MonoBehaviour
             return false;
         }
 
+        //ajustar la orbita usando la inversa de la diferencia del objetivo con el objetivo previo
+        Vector3 alignedDelta = 
+            Quaternion.Inverse(gravityAlignment) * (focusPoint - previousFocusPoint);
+
         //obtener cambio en el movimiento del cuadro
         Vector2 movement = new Vector2(
-            focusPoint.x - previousFocusPoint.x,
-            focusPoint.z - previousFocusPoint.z
+            alignedDelta.x, alignedDelta.z
         );
 
         //cuadrado del movimiento del cuadro
