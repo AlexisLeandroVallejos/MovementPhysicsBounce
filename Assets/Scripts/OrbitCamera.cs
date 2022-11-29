@@ -25,6 +25,10 @@ public class OrbitCamera : MonoBehaviour
     [SerializeField, Range(-89f, 89f)]
     float minVerticalAngle = -30f, maxVerticalAngle = 60f;
 
+    //ajuste suave de la rotacion de la camara al seguir al jugador
+    [SerializeField, Range(0f, 90f)]
+    float alignSmoothRange = 45f;
+
     //radio de seguimiento de la camara, para que la camara no sea tan exacta/estricta al seguir la esfera
     [SerializeField, Min(0f)]
     float focusRadius = 1f;
@@ -208,8 +212,25 @@ public class OrbitCamera : MonoBehaviour
         //angulo del enfoque a seguir (objetivo), se pasa el angulo normalizado
         float headingAngle = GetAngle(movement / Mathf.Sqrt(movementDeltaSqr));
 
-        //el nuevo angulo sera mi nuevo enfoque
-        orbitAngles.y = headingAngle;
+        //obtener la diferencia entre angulos de enfoque actual y anterior absoluto (sin signo)
+        float deltaAbs = Mathf.Abs(Mathf.DeltaAngle(orbitAngles.y, headingAngle));
+
+        //cambio de rotacion. aumentara la sensibilidad del cambio para que no sea brusco usando el minimo del tiempo sin escalar en juego o el cuadrado del movimiento del cuadro
+        float rotationChange = rotationSpeed * Mathf.Min(Time.unscaledDeltaTime, movementDeltaSqr);
+
+        //si la diferencia absoluta del angulo de enfoque es menor al rango de ajuste suave...
+        if(deltaAbs < alignSmoothRange){
+
+            //multiplicar el resultado de la division por rotacionChange y guardarlo en rotacionChange (operador multiplyAND). Escalar el cambio de rotacion acorde a su angulo de enfoque y el ajuste suave
+            rotationChange *= deltaAbs / alignSmoothRange;
+        }
+        //cuando el angulo pasa de los 180... Escala el cambio de rotacion cuando la esfera va hacia a la camara
+        else if(180f - deltaAbs < alignSmoothRange){
+            rotationChange *= (180f - deltaAbs) / alignSmoothRange;
+        }
+
+        //el nuevo angulo sera mi nuevo enfoque limitado entre 0 y 360 grados
+        orbitAngles.y = Mathf.MoveTowardsAngle(orbitAngles.y, headingAngle, rotationChange);
 
         //ajustar
         return true;
