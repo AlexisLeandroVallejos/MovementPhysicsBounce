@@ -121,9 +121,11 @@ public class OrbitCamera : MonoBehaviour
         if(Physics.BoxCast(
             castFrom, CameraHalfExtends, castDirection, out RaycastHit hit, lookRotation, castDistance
             )){
-                //ajusta la posicion de la camara para realizar una plano cercano sin chocarse con objetos
-                lookPosition = focusPoint - 
-                    lookDirection * (hit.distance + regularCamera.nearClipPlane);
+                //ajusta la posicion del rectangulo de la camara para alejar o acercar la vision de la camara al objetivo
+                rectPosition = castFrom + castDirection * hit.distance;
+
+                //ajusta la posicion de la camara para realizar un plano cercano sin chocarse con objetos
+                lookPosition = rectPosition - rectOffset;
             }
 
         //mover camara: posicion y rotacion usando los valores redefinidos anteriormente
