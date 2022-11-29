@@ -45,13 +45,19 @@ public class OrbitCamera : MonoBehaviour
 
     //ultima vez que se roto manualmente
     float lastManualRotationTime;
+    
+    //referencia al componente de camara regular
+    Camera regularCamera;
 
     void Awake()
     {
+        //obtener la camara al despertar
+        regularCamera = GetComponent<Camera>();
+
         //despertar viendo a la esfera
         focusPoint = focus.position;
 
-        //al iniciar mantener los angulos correctos
+        //al despertar mantener los angulos correctos
         transform.localRotation = Quaternion.Euler(orbitAngles);
     }
 
@@ -94,9 +100,9 @@ public class OrbitCamera : MonoBehaviour
         Vector3 lookPosition = focusPoint - lookDirection * distance;
 
 
-        //castea un rayo para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
-        if(Physics.Raycast(
-            focusPoint, -lookDirection, out RaycastHit hit, distance
+        //castea una caja para reducir la distancia de enfoque a la esfera si hay un objeto que impacta con la camara. Evita que la camara pase de forma transparente por objetos y achica la vision sobre la esfera.
+        if(Physics.BoxCast(
+            focusPoint, CameraHalfExtends, -lookDirection, out RaycastHit hit,lookRotation, distance
             )){
                 lookPosition = focusPoint - lookDirection * hit.distance;
             }
@@ -252,5 +258,25 @@ public class OrbitCamera : MonoBehaviour
         
         //el angulo podria rotar a sentido horario o antihorario, entonces se revisara su X para saber cual sentido es. Si es menor a 0f, restar 360f. Sino retornar el angulo sin modificar
         return direction.x < 0f ? 360f - angle : angle;
+    }
+
+    //se obtiene la mitad de las extensiones de una caja (box cast). Para hacer la camara ocupar un espacio similar a un rectangulo. Esto permitira que el movimiento de la camara a traves de obstaculos sea mas real. Como las camaras reales que tratan de enfocar lo mas cercano a ellas y lo demas queda difuso
+    Vector3 CameraHalfExtends
+    {
+        get
+        {
+            //obtener la mitad de las extensiones del rectangulo
+            Vector3 halfExtends;
+
+            //en Y (altura del rectangulo): plano cercano de la camara por la tangente de la mitad del campo de vision de la camara pasada a radianes
+            halfExtends.y = regularCamera.nearClipPlane * Mathf.Tan(0.5f * Mathf.Deg2Rad * regularCamera.fieldOfView);
+
+            //en X (ancho del rectangulo)
+            halfExtends.x = halfExtends.y * regularCamera.aspect;
+
+            //en Z (profundidad del rectangulo)
+            halfExtends.z = 0f;
+            return halfExtends;
+        }
     }
 }
