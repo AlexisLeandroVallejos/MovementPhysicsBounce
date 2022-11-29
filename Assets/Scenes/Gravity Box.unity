@@ -7744,6 +7744,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 675929264}
   m_Mesh: {fileID: 521154274}
+--- !u!4 &694789721 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1883633107873946392, guid: 87d704f32d3eb0345bb3d620094441f1, type: 3}
+  m_PrefabInstance: {fileID: 1882280929}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &700259981
 GameObject:
   m_ObjectHideFlags: 0
@@ -23337,21 +23342,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1822895525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1b8ac43c743f4ec59454ccad24d8740, type: 3}
+  m_Script: {fileID: 11500000, guid: daf2a60ec6d63ea45a987f17ab54d2dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  focus: {fileID: 0}
+  focus: {fileID: 694789721}
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 1793
   distance: 5
-  focusRadius: 1
-  focusCentering: 0.75
+  focusCentering: 0.5
   rotationSpeed: 90
   minVerticalAngle: -30
   maxVerticalAngle: 60
-  alignDelay: 5
   alignSmoothRange: 45
-  obstructionMask:
-    serializedVersion: 2
-    m_Bits: 1587
+  focusRadius: 1
+  alignDelay: 5
 --- !u!81 &1822895527
 AudioListener:
   m_ObjectHideFlags: 0
