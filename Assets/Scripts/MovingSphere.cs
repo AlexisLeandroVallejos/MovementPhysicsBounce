@@ -70,8 +70,8 @@ public class MovingSphere : MonoBehaviour
     //pasos fisicos desde que toco piso, agregado pasos desde el ultimo salto
     int stepsSinceLastGrounded, stepsSinceLastJump;
 
-    //eje superior o hacia arriba
-    Vector3 upAxis;
+    //eje superior o hacia arriba, eje derecho, eje delantero: Controles relativos
+    Vector3 upAxis, rightAxis, forwardAxis;
 
     //se mantendra sincronizado mientras este en play mode
     void OnValidate(){
@@ -111,22 +111,20 @@ public class MovingSphere : MonoBehaviour
         //si hay espacio de entrada del jugador...
         if(playerInputSpace){
 
-            //normalizar forward y right (XZ) para que la camara no afecte la velocidad deseada de la esfera al rotar su orbita vertical
-            Vector3 forward = playerInputSpace.forward;
-            forward.y = 0f;
-            forward.Normalize();
-            Vector3 right = playerInputSpace.right;
-            right.y = 0f;
-            right.Normalize();
-            
-            //la velocidad deseada sera modificada segun este espacio
-            desiredVelocity = (forward * playerInput.y + right * playerInput.x) * maxSpeed;
+            //proyectar direcciones en el plano usando los ejes del espacio de entrada
+            rightAxis = ProjectDirectionOnPlane(playerInputSpace.right, upAxis);
+            forwardAxis = ProjectDirectionOnPlane(playerInputSpace.forward, upAxis);
         }
         //sino usarla directamente de los controles de entrada
         else{
-            //velocidad deseada es un campo para usar en FixedUpdate
-            desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
+            
+            //proyectar direcciones en el plano usando los controles
+            rightAxis = ProjectDirectionOnPlane(Vector3.right, upAxis);
+            forwardAxis = ProjectDirectionOnPlane(Vector3.forward, upAxis);
         }
+
+        //velocidad deseada es un campo para usar en FixedUpdate
+        desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
 
         //saltar al presionar Espacio, "OR asignado" para que siempre sea true hasta modificarlo
         desiredJump |= Input.GetButtonDown("Jump");
@@ -309,17 +307,17 @@ public class MovingSphere : MonoBehaviour
         }
     }
 
-    //alinear velocidad deseada con el piso
-    Vector3 ProjectOnContactPlane(Vector3 vector)
+    //proyectar direcciones en el plano
+    Vector3 ProjectDirectionOnPlane(Vector3 direction, Vector3 normal)
     {
-        return vector - contactNormal * Vector3.Dot(vector, contactNormal);
+        return (direction - normal * Vector3.Dot(direction, normal)).normalized;
     }
 
     void AdjustVelocity()
     {
         //vectores de velocidad alineados con el piso para mantener una velocidad correcta en pendientes
-        Vector3 xAxis = ProjectOnContactPlane(Vector3.right).normalized;
-        Vector3 zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
+        Vector3 xAxis = ProjectDirectionOnPlane(rightAxis, contactNormal);
+        Vector3 zAxis = ProjectDirectionOnPlane(forwardAxis, contactNormal);
 
         //proyectar velocidad actual y nueva velocidad con respecto al piso
         float currentX = Vector3.Dot(velocity, xAxis);
