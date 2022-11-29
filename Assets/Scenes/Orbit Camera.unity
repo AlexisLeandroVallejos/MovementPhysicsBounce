@@ -8371,7 +8371,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh29570
+  m_Name: pb_Mesh23758
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -8792,6 +8792,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   focus: {fileID: 470838888}
   distance: 5
+  focusCentering: 0.5
+  rotationSpeed: 90
+  minVerticalAngle: -30
+  maxVerticalAngle: 60
+  alignSmoothRange: 45
+  focusRadius: 1
+  alignDelay: 5
 --- !u!1001 &1293849910
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8847,6 +8854,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1883633107873946397, guid: 87d704f32d3eb0345bb3d620094441f1, type: 3}
+      propertyPath: playerInputSpace
+      value: 
+      objectReference: {fileID: 963194228}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 87d704f32d3eb0345bb3d620094441f1, type: 3}
 --- !u!1 &1300512869
